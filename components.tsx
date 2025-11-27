@@ -76,32 +76,33 @@ export const QuadRadar = ({
 };
 
 // --- LANDING PAGE ---
-const COUNT_BASE = 23500;
-const ANCHOR_TIMESTAMP = 1715000000000;
-const HOURLY_RATE_DEFAULT = 8;
-const HOURLY_RATE_MIN = 6;
-const HOURLY_RATE_MAX = 10;
+const COUNT_BASE = 3600;
+const ANCHOR_TIMESTAMP = 1732665600000; // 2024-11-27 00:00:00 GMT
+const MS_PER_DAY = 86_400_000;
+const DAILY_RATE_DEFAULT = 4;
+const DAILY_RATE_MIN = 2;
+const DAILY_RATE_MAX = 5;
 const BOOST_STORAGE_KEY = 'landing_count_boost';
-const RATE_STORAGE_KEY = 'landing_count_rate';
+const RATE_STORAGE_KEY = 'landing_count_daily_rate';
 
 const getSafeNumber = (value: string | null, fallback = 0) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const getHourlyRate = () => {
-  if (typeof window === 'undefined') return HOURLY_RATE_DEFAULT;
+const getDailyRate = () => {
+  if (typeof window === 'undefined') return DAILY_RATE_DEFAULT;
   const stored = getSafeNumber(window.localStorage.getItem(RATE_STORAGE_KEY), 0);
   if (stored > 0) return stored;
-  const randomized = HOURLY_RATE_MIN + Math.floor(Math.random() * (HOURLY_RATE_MAX - HOURLY_RATE_MIN + 1));
+  const randomized = DAILY_RATE_MIN + Math.floor(Math.random() * (DAILY_RATE_MAX - DAILY_RATE_MIN + 1));
   window.localStorage.setItem(RATE_STORAGE_KEY, String(randomized));
   return randomized;
 };
 
 const computeInitialCount = () => {
-  const elapsedHours = Math.max(0, Math.floor((Date.now() - ANCHOR_TIMESTAMP) / 3600000));
+  const elapsedDays = Math.max(0, Math.floor((Date.now() - ANCHOR_TIMESTAMP) / MS_PER_DAY));
   const boost = typeof window === 'undefined' ? 0 : getSafeNumber(window.localStorage.getItem(BOOST_STORAGE_KEY));
-  return COUNT_BASE + elapsedHours * getHourlyRate() + boost;
+  return COUNT_BASE + elapsedDays * getDailyRate() + boost;
 };
 
 const persistBoostIncrement = () => {
@@ -134,13 +135,12 @@ export const LandingPage = ({ onStart }: { onStart: () => void }) => {
          </div>
 
          <h1 className="text-4xl md:text-6xl font-black text-slate-900 leading-tight mb-6 tracking-tight">
-           解码你的<br/>
-           <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">财富创造能力</span>
+           解锁你的<br/>
+           <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">赚钱钞能力</span>
          </h1>
 
          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-10 font-light">
-           这不仅仅是一个心理测试，而是一次对你商业潜能的<strong>深度体检</strong>。<br/>
-           基于4大核心维度，揭示你最适合的变现路径。
+           用创业 DNA 测评先确认你最擅长的变现模式，让时间与预算只投入在高胜算战场，把行动直接变成可复制的现金流。
          </p>
 
          <button 
