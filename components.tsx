@@ -140,8 +140,8 @@ export const LandingPage = ({ onStart }: { onStart: () => void }) => {
          </h1>
 
          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-10 font-light">
-           只需 3 分钟完成测评，<br />
-           立刻锁定你最擅长的赚钱打法。
+           只需 3 分钟完成测评<br />
+           立刻锁定你最擅长的赚钱打法
          </p>
 
          <button 
