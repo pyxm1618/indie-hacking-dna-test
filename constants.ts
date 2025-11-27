@@ -64,12 +64,12 @@ export const QUESTIONS: Question[] = [
   {
     id: 21,
     category: 'Opportunity',
-    text: "在处理信息时，你更关注？",
+    text: "看到朋友圈有人分享一个赚钱新方法，你最先想了解的是？",
     options: [
-      { text: "“为什么”——背后的原因和未来的趋势。", score: 4 },
-      { text: "“怎么做”——具体的方法和步骤。", score: 3 },
-      { text: "“是什么”——客观的事实和数据。", score: 2 },
-      { text: "“谁在做”——权威和名人的动态。", score: 1 },
+      { text: "这个方法背后的商业逻辑和长期可行性", score: 4 },
+      { text: "具体怎么操作，需要什么条件和步骤", score: 3 },
+      { text: "这个方法的基本信息和实际效果数据", score: 2 },
+      { text: "是谁在推荐，他是不是权威人士", score: 1 },
     ]
   },
   {
