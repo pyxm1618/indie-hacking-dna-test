@@ -1,12 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Question, Option } from './types';
 import policeBadge from './assets/police-badge.png';
-
-// --- ICONS ---
-export const ArrowRightIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-);
 
 // --- QUAD RADAR CHART (Diamond Shape) ---
 export const QuadRadar = ({ 
@@ -81,26 +76,57 @@ export const QuadRadar = ({
 };
 
 // --- LANDING PAGE ---
-export const LandingPage = ({ onStart }: { onStart: () => void }) => {
-  const [count, setCount] = useState(23496);
+const COUNT_BASE = 23500;
+const ANCHOR_TIMESTAMP = 1715000000000;
+const HOURLY_RATE_DEFAULT = 8;
+const HOURLY_RATE_MIN = 6;
+const HOURLY_RATE_MAX = 10;
+const BOOST_STORAGE_KEY = 'landing_count_boost';
+const RATE_STORAGE_KEY = 'landing_count_rate';
 
-  useEffect(() => {
-    const base = 23496 + Math.floor((Date.now() - 1715000000000) / 3600000); 
-    setCount(base);
-    const interval = setInterval(() => {
-      if (Math.random() > 0.6) setCount(prev => prev + 1);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+const getSafeNumber = (value: string | null, fallback = 0) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const getHourlyRate = () => {
+  if (typeof window === 'undefined') return HOURLY_RATE_DEFAULT;
+  const stored = getSafeNumber(window.localStorage.getItem(RATE_STORAGE_KEY), 0);
+  if (stored > 0) return stored;
+  const randomized = HOURLY_RATE_MIN + Math.floor(Math.random() * (HOURLY_RATE_MAX - HOURLY_RATE_MIN + 1));
+  window.localStorage.setItem(RATE_STORAGE_KEY, String(randomized));
+  return randomized;
+};
+
+const computeInitialCount = () => {
+  const elapsedHours = Math.max(0, Math.floor((Date.now() - ANCHOR_TIMESTAMP) / 3600000));
+  const boost = typeof window === 'undefined' ? 0 : getSafeNumber(window.localStorage.getItem(BOOST_STORAGE_KEY));
+  return COUNT_BASE + elapsedHours * getHourlyRate() + boost;
+};
+
+const persistBoostIncrement = () => {
+  if (typeof window === 'undefined') return;
+  const next = getSafeNumber(window.localStorage.getItem(BOOST_STORAGE_KEY)) + 1;
+  window.localStorage.setItem(BOOST_STORAGE_KEY, String(next));
+};
+
+export const LandingPage = ({ onStart }: { onStart: () => void }) => {
+  const [count, setCount] = useState(() => computeInitialCount());
+
+  const handleStart = () => {
+    setCount(prev => prev + 1);
+    persistBoostIncrement();
+    onStart();
+  };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-[#333] font-sans overflow-hidden relative flex flex-col items-center justify-between">
+    <div className="min-h-screen bg-[#f8fafc] text-[#333] font-sans overflow-hidden relative flex flex-col items-center pt-10 pb-6 gap-6">
        {/* Background Elements */}
        <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
 
-       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex-1 flex flex-col justify-center w-full">
+       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex-1 flex flex-col justify-start md:justify-center w-full pt-6 md:pt-0">
          <div className="inline-block mb-6">
            <span className="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-500 uppercase tracking-widest shadow-sm">
              Wealth Creation Capability Assessment
@@ -118,11 +144,10 @@ export const LandingPage = ({ onStart }: { onStart: () => void }) => {
          </p>
 
          <button 
-            onClick={onStart}
-            className="group relative inline-flex items-center gap-3 px-10 py-5 bg-slate-900 hover:bg-slate-800 text-white text-xl font-bold rounded-full transition-all hover:scale-105 shadow-xl shadow-slate-900/20 mx-auto"
+            onClick={handleStart}
+            className="group relative inline-flex items-center justify-center px-10 py-5 bg-slate-900 hover:bg-slate-800 text-white text-xl font-bold rounded-full transition-all hover:scale-105 shadow-xl shadow-slate-900/20 mx-auto"
           >
-            <span>开始能力测评</span>
-            <ArrowRightIcon />
+            <span>立即行动</span>
          </button>
 
          <div className="mt-8 text-sm text-slate-400 font-medium">
@@ -131,11 +156,11 @@ export const LandingPage = ({ onStart }: { onStart: () => void }) => {
        </div>
 
        {/* Filing Footer */}
-       <div className="relative z-20 w-full py-6 text-[11px] text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 bg-transparent">
+       <div className="relative z-20 w-full py-6 mt-auto text-[11px] text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 bg-transparent">
           <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer" className="hover:text-slate-600 transition-colors">
              工信部备案：京ICP备2024069371号-3
           </a>
-          <a href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011402054501" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-slate-600 transition-colors">
+          <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011402054501" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-slate-600 transition-colors">
              <img src={policeBadge} alt="公安备案图标" className="w-4 h-4" />
              <span>公安备案：京公网安备11011402054501号</span>
           </a>
