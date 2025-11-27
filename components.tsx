@@ -140,7 +140,8 @@ export const LandingPage = ({ onStart }: { onStart: () => void }) => {
          </h1>
 
          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-10 font-light">
-           用创业 DNA 测评先确认你最擅长的变现模式，让时间与预算只投入在高胜算战场，把行动直接变成可复制的现金流。
+           只需 2 分钟完成测评，<br />
+           立刻锁定你最擅长的赚钱打法。
          </p>
 
          <button 
